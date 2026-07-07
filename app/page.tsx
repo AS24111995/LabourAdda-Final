@@ -1616,6 +1616,14 @@ export default function HomePage() {
   const [qrScanningState, setQrScanningState] = useState<"idle" | "scanning" | "done">("idle");
   const [lastVerificationTime, setLastVerificationTime] = useState<string>("");
 
+  // PROMPT-17B: Contractor QR Scan + Instant Hiring Flow States
+  const [p17bContractor, setP17bContractor] = useState<string>("Raj Builders Pvt Ltd");
+  const [p17bStep, setP17bStep] = useState<number>(1);
+  const [p17bScanning, setP17bScanning] = useState<boolean>(false);
+  const [p17bVerified, setP17bVerified] = useState<boolean>(false);
+  const [p17bHired, setP17bHired] = useState<boolean>(false);
+  const [p17bModalOpen, setP17bModalOpen] = useState<boolean>(false);
+
   const DEMO_PASSPORT_WORKERS = useMemo(() => [
     {
       id: "p1",
@@ -2514,6 +2522,466 @@ export default function HomePage() {
 
           </div>
         </section>
+
+        {/* PROMPT-17B: Contractor QR Scan + Instant Hiring Flow */}
+        <section id="contractor-instant-hiring-section" className="mb-10 bg-slate-900/60 p-6 rounded-3xl border border-slate-800 space-y-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />
+                <h3 className="text-xl font-bold text-white tracking-tight">
+                  {lang === "hi" ? "तुरंत श्रमिक नियुक्ति प्रक्रिया" : "Instant Contractor Hiring Flow"}
+                </h3>
+              </div>
+              <p className="text-xs text-slate-400 mt-1 font-mono tracking-wider">
+                "Scan → Verify → Hire → Digital Work Contract" / "स्कैन → सत्यापन → काम पर रखें → डिजिटल अनुबंध"
+              </p>
+            </div>
+            {/* Audio Speech Assist */}
+            <button
+              onClick={() => handleVoiceSpeak(
+                "तुरंत श्रमिक नियुक्ति प्रक्रिया प्रदर्शन। ठेकेदार यहाँ से क्यूआर कोड स्कैन करके किसी भी श्रमिक को तुरंत और सुरक्षित तरीके से काम पर रख सकते हैं।",
+                "Instant Contractor Hiring Flow Demonstration. Contractors can scan any worker's passport QR code to securely and instantly hire them."
+              )}
+              className="p-2 px-3 bg-amber-500/10 hover:bg-amber-500 text-amber-400 hover:text-slate-950 rounded-xl border border-amber-500/25 transition cursor-pointer flex items-center gap-2 text-xs font-semibold"
+            >
+              <Volume2 className="w-3.5 h-3.5" />
+              <span>{lang === "hi" ? "सुनें" : "Listen Assist"}</span>
+            </button>
+          </div>
+
+          {/* 4-STEP PROGRESS FLOW */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {[
+              { step: 1, labelEn: "QR Scan", labelHi: "क्यूआर स्कैन", icon: Camera },
+              { step: 2, labelEn: "Identity Verified", labelHi: "पहचान सत्यापित", icon: ShieldCheck },
+              { step: 3, labelEn: "Hire Worker", labelHi: "श्रमिक नियुक्ति", icon: UserCheck },
+              { step: 4, labelEn: "Digital Contract", labelHi: "डिजिटल अनुबंध", icon: FileText }
+            ].map((s) => {
+              const IconComponent = s.icon;
+              const isActive = p17bStep === s.step;
+              const isPassed = p17bStep > s.step;
+              return (
+                <div 
+                  key={s.step} 
+                  className={`relative p-3.5 rounded-xl border transition-all duration-300 flex flex-col items-center justify-center text-center space-y-2 ${
+                    isActive 
+                      ? "bg-amber-500/10 border-amber-500/60 shadow-[0_0_15px_rgba(245,158,11,0.25)] animate-pulse" 
+                      : isPassed 
+                        ? "bg-emerald-500/5 border-emerald-500/30 text-emerald-400" 
+                        : "bg-slate-950/40 border-slate-900 text-slate-500"
+                  }`}
+                >
+                  <div className={`p-2 rounded-full ${
+                    isActive 
+                      ? "bg-amber-500/20 text-amber-400" 
+                      : isPassed 
+                        ? "bg-emerald-500/10 text-emerald-400" 
+                        : "bg-slate-900 text-slate-600"
+                  }`}>
+                    <IconComponent className="w-5 h-5" />
+                  </div>
+                  <div className="space-y-0.5">
+                    <p className="text-[10px] uppercase font-bold tracking-widest font-mono">
+                      {lang === "hi" ? `चरण ${s.step}` : `Step ${s.step}`}
+                    </p>
+                    <p className={`text-xs font-bold leading-tight ${isActive ? "text-white" : isPassed ? "text-emerald-400" : "text-slate-500"}`}>
+                      {lang === "hi" ? s.labelHi : s.labelEn}
+                    </p>
+                  </div>
+                  {s.step < 4 && (
+                    <div className="hidden md:block absolute -right-2 top-1/2 -translate-y-1/2 z-10 text-slate-700 font-mono">➔</div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* CONTRACTOR CONSOLE CARD */}
+            <div className="lg:col-span-5 bg-slate-950/40 p-5 rounded-2xl border border-slate-800 space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-900 pb-3">
+                <div className="flex items-center gap-2">
+                  <Settings className="w-4 h-4 text-amber-500" />
+                  <h4 className="text-sm font-bold text-white uppercase tracking-wider font-mono">
+                    {lang === "hi" ? "ठेकेदार कंसोल" : "Contractor Console"}
+                  </h4>
+                </div>
+                <span className="px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 text-[9px] font-mono font-bold uppercase tracking-wider">
+                  Live Sim
+                </span>
+              </div>
+
+              {/* Contractor Dropdown Selection */}
+              <div className="space-y-1.5">
+                <label className="text-xs text-slate-400 block font-semibold">
+                  {lang === "hi" ? "ठेकेदार चुनें / Select Contractor" : "Select Contractor / ठेकेदार चुनें"}
+                </label>
+                <div className="relative">
+                  <select
+                    value={p17bContractor}
+                    onChange={(e) => setP17bContractor(e.target.value)}
+                    className="w-full bg-slate-900 text-slate-100 p-2.5 rounded-xl border border-slate-800/80 text-xs focus:ring-1 focus:ring-amber-500 focus:outline-none transition-all cursor-pointer font-mono"
+                  >
+                    <option value="Raj Builders Pvt Ltd">Raj Builders Pvt Ltd</option>
+                    <option value="GIDA Infrastructure">GIDA Infrastructure</option>
+                    <option value="ABC Construction">ABC Construction</option>
+                    <option value="Metro Housing">Metro Housing</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Action Trigger Button */}
+              <button
+                type="button"
+                disabled={p17bScanning}
+                onClick={() => {
+                  setP17bScanning(true);
+                  setP17bVerified(false);
+                  setP17bHired(false);
+                  setP17bStep(1);
+                  handleVoiceSpeak("सत्यापन आरंभ हो रहा है...", "Initiating cryptographic verification sequence...");
+                  setTimeout(() => {
+                    setP17bScanning(false);
+                    setP17bVerified(true);
+                    setP17bStep(3); // Go to Hire step
+                    handleVoiceSpeak(
+                      "सत्यापन पूर्ण। कामगार " + activePassportWorker.name + " का पहचान विवरण प्रमाणित किया जा चुका है।",
+                      "Identity verification complete. Credentials for " + activePassportWorker.name + " certified."
+                    );
+                  }, 2000);
+                }}
+                className={`w-full py-3 rounded-xl font-bold font-mono text-xs uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer ${
+                  p17bScanning 
+                    ? "bg-amber-500/20 text-amber-400 border border-amber-500/40 animate-pulse" 
+                    : "bg-amber-500 text-slate-950 hover:bg-amber-600 font-extrabold shadow-lg shadow-amber-500/10 active:scale-95"
+                }`}
+              >
+                {p17bScanning ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    <span>{lang === "hi" ? "स्कैन किया जा रहा है..." : "Scanning..."}</span>
+                  </>
+                ) : (
+                  <>
+                    <Camera className="w-4 h-4" />
+                    <span>{lang === "hi" ? "कामगार पासपोर्ट स्कैन करें" : "Scan Worker Passport"}</span>
+                  </>
+                )}
+              </button>
+
+              {/* Information Alert */}
+              <div className="bg-slate-900/50 p-3 rounded-xl border border-slate-900 text-[10px] text-slate-400 leading-relaxed font-mono">
+                {lang === "hi"
+                  ? "✓ यह सिम्युलेटर सत्यापित कामगार के श्रम पासपोर्ट पर बने डिजिटल क्रेडेंशियल, आधार पहचान और विश्वास स्कोर की सजीव जांच करता है।"
+                  : "✓ This simulator live-queries certified passport credentials, Aadhaar status, and live trust score of the worker."}
+              </div>
+            </div>
+
+            {/* VERIFICATION RESULT & ACTION PANEL */}
+            <div className="lg:col-span-7 space-y-4">
+              {!p17bScanning && !p17bVerified && (
+                <div className="bg-slate-950/20 border border-dashed border-slate-800/80 rounded-2xl p-8 text-center flex flex-col items-center justify-center min-h-[220px]">
+                  <ShieldCheck className="w-12 h-12 text-slate-600 mb-2.5" />
+                  <p className="text-sm font-semibold text-slate-300 uppercase tracking-wide font-mono">
+                    {lang === "hi" ? "सत्यापन परिणाम की प्रतीक्षा..." : "Awaiting Verification Trigger..."}
+                  </p>
+                  <p className="text-xs text-slate-500 mt-1 max-w-sm">
+                    {lang === "hi" 
+                      ? "सिमुलेशन शुरू करने के लिए ठेकेदार कंसोल में 'कामगार पासपोर्ट स्कैन करें' पर क्लिक करें।" 
+                      : "Click 'Scan Worker Passport' in the Contractor Console to trigger instant biometric ledger verification."}
+                  </p>
+                </div>
+              )}
+
+              {p17bScanning && (
+                <div className="bg-slate-950/30 border border-amber-500/20 rounded-2xl p-8 text-center flex flex-col items-center justify-center min-h-[220px] space-y-4">
+                  <div className="relative">
+                    <div className="w-16 h-16 rounded-full border-4 border-amber-500/10 border-t-amber-500 animate-spin" />
+                    <Camera className="w-6 h-6 text-amber-500 absolute inset-0 m-auto" />
+                  </div>
+                  <div className="space-y-1 font-mono">
+                    <p className="text-xs text-amber-500 font-black tracking-widest uppercase">
+                      {lang === "hi" ? "सुरक्षित क्रेडेंशियल स्कैन किया जा रहा है..." : "CRYPTOGRAPHIC BIOMETRIC DISCOVERY..."}
+                    </p>
+                    <p className="text-[10px] text-slate-500">
+                      AES-256 SECURE CONNECTION: LAB-ID-{activePassportWorker.passportId}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {p17bVerified && (
+                <div className="bg-gradient-to-b from-slate-900 to-slate-950 border border-emerald-500/20 rounded-2xl p-5 space-y-4 animate-fadeIn">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
+                      <span className="text-xs font-black text-emerald-400 uppercase tracking-widest font-mono">
+                        ✓ SECURE RECORD IDENTITY MATCHED
+                      </span>
+                    </div>
+                    <span className="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded font-mono font-bold">
+                      {lang === "hi" ? "सक्रिय और तैयार" : "READY FOR DEPLOYMENT"}
+                    </span>
+                  </div>
+
+                  {/* Worker Card Preview */}
+                  <div className="bg-slate-950/60 p-4 rounded-xl border border-slate-900 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <div>
+                        <span className="text-slate-500 text-[9px] block uppercase tracking-wider font-mono">{lang === "hi" ? "कामगार" : "Worker"}</span>
+                        <span className="text-sm font-bold text-white tracking-wide">
+                          {lang === "hi" ? activePassportWorker.nameHi || activePassportWorker.name : activePassportWorker.name}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-slate-500 text-[9px] block uppercase tracking-wider font-mono">{lang === "hi" ? "ट्रेड / कौशल" : "Trade / Skill"}</span>
+                        <span className="text-xs font-semibold text-slate-300 font-mono">
+                          {lang === "hi" ? activePassportWorker.tradeHi || activePassportWorker.trade : activePassportWorker.tradeEn || activePassportWorker.trade}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-slate-500 text-[9px] block uppercase tracking-wider font-mono">{lang === "hi" ? "पासपोर्ट संख्या" : "Passport ID"}</span>
+                        <span className="text-xs text-amber-500 font-bold font-mono">
+                          {activePassportWorker.passportId}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <div>
+                        <span className="text-slate-500 text-[9px] block uppercase tracking-wider font-mono">{lang === "hi" ? "गृह जिला" : "District / State"}</span>
+                        <span className="text-xs font-semibold text-slate-300">
+                          {lang === "hi" ? activePassportWorker.districtHi || activePassportWorker.district : `${activePassportWorker.district}, ${activePassportWorker.state}`}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <span className="text-slate-500 text-[9px] block uppercase tracking-wider font-mono">{lang === "hi" ? "विश्वास स्कोर" : "Trust Score"}</span>
+                          <span className="text-sm font-black text-emerald-400 font-mono">
+                            {activePassportWorker.trustScore}/100
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 text-[9px] block uppercase tracking-wider font-mono">{lang === "hi" ? "उपस्थिति" : "Attendance"}</span>
+                          <span className="text-sm font-black text-amber-400 font-mono">
+                            {activePassportWorker.attendanceReliability || "99%"}
+                          </span>
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-slate-500 text-[9px] block uppercase tracking-wider font-mono">{lang === "hi" ? "कार्य अनुभव" : "Experience"}</span>
+                        <span className="text-xs font-bold text-white font-mono">8 Years / ८ वर्ष</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ACTION CONTROLS */}
+                  <div className="flex flex-col sm:flex-row gap-3 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setP17bHired(true);
+                        setP17bStep(4);
+                        handleVoiceSpeak(
+                          "श्रमिक सफलतापूर्वक नियुक्त किया गया। डिजिटल कार्य अनुबंध तैयार है।",
+                          "Worker successfully hired. Digital work contract generated."
+                        );
+                      }}
+                      className="flex-1 py-3 bg-gradient-to-tr from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-slate-950 font-extrabold text-xs font-mono rounded-xl transition duration-150 shadow-lg flex items-center justify-center gap-2 cursor-pointer uppercase tracking-wider active:scale-95"
+                    >
+                      <UserCheck className="w-4 h-4" />
+                      <span>{lang === "hi" ? "अभी नियुक्त करें" : "Hire Now"}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setP17bModalOpen(true)}
+                      className="py-3 px-4 border border-slate-800 hover:border-slate-700 hover:bg-slate-900/60 text-slate-300 font-bold font-mono text-xs rounded-xl transition cursor-pointer flex items-center justify-center gap-2 uppercase tracking-wider active:scale-95"
+                    >
+                      <FileText className="w-4 h-4" />
+                      <span>{lang === "hi" ? "डिजिटल अनुबंध तैयार करें" : "Generate Digital Contract"}</span>
+                    </button>
+                  </div>
+
+                  {/* Hiring Confirmation Dialog */}
+                  {p17bHired && (
+                    <div className="bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-xl text-center space-y-1.5 animate-bounce">
+                      <p className="text-sm font-black text-emerald-400 uppercase tracking-widest font-mono">
+                        🎉 {lang === "hi" ? "श्रमिक सफलतापूर्वक नियुक्त किया गया" : "Worker Successfully Reserved"}
+                      </p>
+                      <p className="text-xs text-slate-300">
+                        {lang === "hi"
+                          ? `ठेकेदार ${p17bContractor} और कामगार ${activePassportWorker.name} के बीच डिजिटल क्रेडेंशियल सफलतापूर्वक दर्ज हो चुके हैं।`
+                          : `Verified match recorded between Contractor ${p17bContractor} and Worker ${activePassportWorker.name}.`}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* JURY DEMO DETAILS PANEL */}
+          <div className="border-t border-slate-800/80 pt-6">
+            <h4 className="text-sm font-bold text-white uppercase tracking-wider font-mono mb-4 flex items-center gap-2">
+              <Award className="w-4.5 h-4.5 text-amber-400" />
+              <span>{lang === "hi" ? "यह क्यों महत्वपूर्ण है? / Why this matters" : "Why this matters / यह क्यों महत्वपूर्ण है"}</span>
+            </h4>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {[
+                {
+                  titleEn: "Instant Verification",
+                  titleHi: "त्वरित सत्यापन",
+                  descEn: "Eliminates manual background check delays completely using instant on-chain credential discovery.",
+                  descHi: "क्रेडेंशियल खोज तकनीक का उपयोग करके मैनुअल पृष्ठभूमि जांच में होने वाले दिनों की देरी को पूरी तरह समाप्त करता है।"
+                },
+                {
+                  titleEn: "No Middlemen",
+                  titleHi: "बिचौलियों की समाप्ति",
+                  descEn: "Direct connection between contractors and workers with complete wage transparency and zero commissions.",
+                  descHi: "ठेकेदारों और कामगारों के बीच सीधा जुड़ाव, जिससे वेतन में पूर्ण पारदर्शिता मिलती है और कमीशन का नुकसान नहीं होता।"
+                },
+                {
+                  titleEn: "Digital Contract",
+                  titleHi: "डिजिटल अनुबंध",
+                  descEn: "Binds wages, standard working hours, accommodation support, and insurance guidelines instantly.",
+                  descHi: "मजदूरी दर, कार्य के घंटे, आवास सहायता और दुर्घटना सुरक्षा बीमा को कानूनी डिजिटल रूप में तुरंत दर्ज करता है।"
+                },
+                {
+                  titleEn: "Trusted Labour Infrastructure",
+                  titleHi: "भरोसेमंद श्रम अवसंरचना",
+                  descEn: "Empowers rural bodies and city wards to maintain transparent labor registries linked to physical passport tags.",
+                  descHi: "ग्राम पंचायतों और शहरी वार्डों को भौतिक पासपोर्ट टैग से जुड़ा पारदर्शी श्रमिक डेटाबेस बनाए रखने की शक्ति देता है।"
+                }
+              ].map((item, idx) => (
+                <div key={idx} className="bg-slate-950/40 p-4 rounded-xl border border-slate-900 space-y-1.5 hover:border-slate-800 transition duration-150">
+                  <span className="text-amber-400 font-mono text-xs font-black">0{idx + 1}.</span>
+                  <p className="text-xs font-bold text-white">
+                    {lang === "hi" ? item.titleHi : item.titleEn}
+                  </p>
+                  <p className="text-[11px] text-slate-400 leading-relaxed">
+                    {lang === "hi" ? item.descHi : item.descEn}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* PROMPT-17B: PREMIUM DIGITAL CONTRACT MODAL */}
+        {p17bModalOpen && (
+          <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-fadeIn">
+            <div className="bg-slate-900 border-2 border-amber-500/30 rounded-3xl w-full max-w-xl overflow-hidden shadow-2xl">
+              {/* Header */}
+              <div className="bg-gradient-to-r from-amber-500/15 to-amber-600/5 p-5 border-b border-slate-800/80 flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <FileText className="w-5 h-5 text-amber-400" />
+                  <div>
+                    <h3 className="text-base font-extrabold text-white tracking-wide">
+                      {lang === "hi" ? "डिजिटल लेबर कॉन्ट्रैक्ट" : "Digital Labour Contract"}
+                    </h3>
+                    <p className="text-[10px] text-slate-400 font-mono tracking-wider">
+                      BLOCKCHAIN COMPLIANT SECURE AGREEMENT
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setP17bModalOpen(false)}
+                  className="p-1.5 rounded-full bg-slate-950/80 text-slate-400 hover:text-white transition cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Body */}
+              <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto font-mono text-xs text-left">
+                <div className="bg-slate-950 p-4 rounded-2xl border border-slate-900 space-y-3">
+                  <div className="flex items-center justify-between border-b border-slate-900 pb-2">
+                    <span className="text-slate-500 uppercase text-[9px]">{lang === "hi" ? "नियोक्ता / ठेकेदार" : "Contractor"}</span>
+                    <span className="text-white font-bold">{p17bContractor}</span>
+                  </div>
+                  <div className="flex items-center justify-between border-b border-slate-900 pb-2">
+                    <span className="text-slate-500 uppercase text-[9px]">{lang === "hi" ? "श्रमिक / कामगार" : "Worker"}</span>
+                    <span className="text-white font-bold">
+                      {lang === "hi" ? activePassportWorker.nameHi || activePassportWorker.name : activePassportWorker.name}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between border-b border-slate-900 pb-2">
+                    <span className="text-slate-500 uppercase text-[9px]">{lang === "hi" ? "श्रेणी / ट्रेड" : "Trade / Skill"}</span>
+                    <span className="text-slate-300 font-bold">
+                      {lang === "hi" ? activePassportWorker.tradeHi || activePassportWorker.trade : activePassportWorker.tradeEn || activePassportWorker.trade}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between border-b border-slate-900 pb-2">
+                    <span className="text-slate-500 uppercase text-[9px]">{lang === "hi" ? "कार्य स्थल" : "Location"}</span>
+                    <span className="text-slate-300 font-bold">Delhi NCR (दिल्ली एनसीआर)</span>
+                  </div>
+                  <div className="flex items-center justify-between border-b border-slate-900 pb-2">
+                    <span className="text-slate-500 uppercase text-[9px]">{lang === "hi" ? "अवधि" : "Duration"}</span>
+                    <span className="text-slate-300 font-bold">30 Days (३० दिन)</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-500 uppercase text-[9px]">{lang === "hi" ? "दैनिक मजदूरी" : "Daily Wage"}</span>
+                    <span className="text-amber-400 font-black text-sm">₹950 / Day</span>
+                  </div>
+                </div>
+
+                {/* Facilities List */}
+                <div className="grid grid-cols-3 gap-2 text-center text-[10px]">
+                  <div className="bg-slate-950/60 p-2.5 rounded-lg border border-slate-900 text-emerald-400">
+                    <p className="text-slate-500 block text-[8px] uppercase">{lang === "hi" ? "आवास" : "ACCOMMODATION"}</p>
+                    <span className="font-bold">✓ {lang === "hi" ? "शामिल है" : "INCLUDED"}</span>
+                  </div>
+                  <div className="bg-slate-950/60 p-2.5 rounded-lg border border-slate-900 text-emerald-400">
+                    <p className="text-slate-500 block text-[8px] uppercase">{lang === "hi" ? "भोजन" : "MEALS"}</p>
+                    <span className="font-bold">✓ {lang === "hi" ? "शामिल है" : "INCLUDED"}</span>
+                  </div>
+                  <div className="bg-slate-950/60 p-2.5 rounded-lg border border-slate-900 text-emerald-400">
+                    <p className="text-slate-500 block text-[8px] uppercase">{lang === "hi" ? "बीमा सुरक्षा" : "INSURANCE"}</p>
+                    <span className="font-bold">✓ {lang === "hi" ? "शामिल है" : "INCLUDED"}</span>
+                  </div>
+                </div>
+
+                {/* Status Indicator */}
+                <div className="bg-emerald-500/10 border border-emerald-500/20 p-3.5 rounded-xl text-center">
+                  <span className="text-emerald-400 font-extrabold tracking-widest block uppercase text-[11px]">
+                    ✓ DIGITALLY ACCEPTED / डिजिटल रूप से स्वीकृत
+                  </span>
+                  <span className="text-[9px] text-slate-400 mt-1 block">
+                    Ledger Tx ID: tx_90a1f2bc88d74e30b
+                  </span>
+                </div>
+
+                {/* Digital Signatures */}
+                <div className="grid grid-cols-2 gap-4 border-t border-slate-800/80 pt-4">
+                  <div className="bg-slate-950/80 p-3 rounded-xl border border-slate-900 text-center space-y-1">
+                    <span className="text-[8px] text-slate-500 uppercase block">{lang === "hi" ? "नियोक्ता हस्ताक्षर" : "Employer Signature"}</span>
+                    <span className="text-emerald-400 font-extrabold text-[10px] block">✓ {lang === "hi" ? "सत्यापित" : "VERIFIED"}</span>
+                    <span className="text-[9px] text-slate-400 block font-mono italic">{p17bContractor}</span>
+                  </div>
+                  <div className="bg-slate-950/80 p-3 rounded-xl border border-slate-900 text-center space-y-1">
+                    <span className="text-[8px] text-slate-500 uppercase block">{lang === "hi" ? "कामगार हस्ताक्षर" : "Worker Signature"}</span>
+                    <span className="text-emerald-400 font-extrabold text-[10px] block">✓ {lang === "hi" ? "सत्यापित" : "VERIFIED"}</span>
+                    <span className="text-[9px] text-slate-400 block font-mono italic">{activePassportWorker.name}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="bg-slate-950 p-4 border-t border-slate-800/80 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setP17bModalOpen(false)}
+                  className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-300 font-extrabold text-xs font-mono rounded-xl transition cursor-pointer"
+                >
+                  {lang === "hi" ? "बंद करें" : "Close"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* WORKER DIGITAL DASHBOARD (COHESIVE FULLY FUNCTIONAL VIEW) */}
         {loggedInUser && loggedInUser.role === "worker" && (
