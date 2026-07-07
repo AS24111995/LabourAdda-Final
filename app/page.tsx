@@ -8089,6 +8089,11 @@ export default function HomePage() {
                 {/* Decorative Indian Pattern Backdrop overlay */}
                 <div className="absolute top-0 right-0 w-24 h-24 bg-white/[0.01] rounded-bl-full pointer-events-none group-hover:scale-125 transition duration-300 border-l border-b border-white/[0.03]" />
 
+                {/* Profession Illustration */}
+                <div className="absolute right-5 top-14 w-14 h-14 opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300 pointer-events-none z-10 rounded-xl overflow-hidden border border-slate-800/40 shadow-lg">
+                  <ProfessionIllustration id={prof.imageSeed} className="w-full h-full" />
+                </div>
+
                 <div>
                   <div className="flex justify-between items-start gap-2">
                     {/* Category Pill Tag */}
